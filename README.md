@@ -1,597 +1,361 @@
-This is **PRD 3**.
+![Demo](src/Assets/Demo.png)
 
----
+📋 Project Details  
+Submission by: Kartik Gupta  
+Roll No: 25BCS10035  
+Student Mail Id: kartik.25bcs10035@sst.scaler.com  
+Submitted to: Mrinal Bhattacharya
 
-# PRD 3 — AI Powered Study Companion (React Project)
+# AI Powered Study Companion (StudyMate)
 
-## 1. Product Title
+A modern React-based study management platform that helps students organize subjects/topics, manage tasks, plan revisions, and use AI-powered study assistance (summaries, questions, flashcards, and study plans).
 
-**AI Powered Study Companion**
+## 1. Project Overview
 
----
+This project is built as a personal study operating system for students. It combines:
 
-# 2. Problem Statement
+- Structured planning (Subjects, Topics, Tasks, Revisions)
+- Progress analytics (stats + charts + weekly activity)
+- AI content generation tools for faster preparation
+- Persistent browser storage for offline continuity
 
-Students often struggle to manage their study schedules, organize topics, track learning progress, and revise effectively before exams. Study materials are usually scattered across notebooks, PDFs, and various apps. As exams approach, students often realize they have:
+The app follows a clean SaaS-style UI with a left sidebar, responsive layouts, and form-driven workflows.
 
-* not tracked what they studied
-* forgotten important topics
-* no structured revision plan
-* no visibility into weak areas
+## 2. PRD Coverage Analysis
 
-Most students rely on simple to-do lists or planners, which lack intelligence and structure.
+The project implements the PRD goals with strong coverage and some evolved behavior based on final product decisions.
 
-The goal of this project is to build an **AI Powered Study Companion** using React that helps students:
+### Covered Features
 
-* organize subjects and topics
-* manage study tasks
-* track learning progress
-* plan revisions
-* generate summaries or questions using AI
+- Subject management (create, edit, delete)
+- Topic management per subject (create, edit, delete)
+- Task management (create, edit, delete, complete)
+- Dynamic search across subjects/topics/tasks
+- Task filtering (priority, subject, deadline window)
+- Task sorting (due date, priority, subject)
+- Dashboard with:
+  - Total, completed, pending, upcoming revision metrics
+  - Topic distribution pie chart
+  - Task status bar chart
+  - Weekly activity bar chart
+  - Upcoming revision reminders
+- Revision planner with subject-aware topic selection
+- AI tools:
+  - Summary generator
+  - Practice questions generator
+  - Flashcards generator
+  - Study plan generator
+- Loading and error fallback behavior for motivational quote API
 
-This application should behave like a **personal study management system with AI assistance**.
+### Product Evolution vs Original PRD
 
----
+- Original PRD task status/tabs included a Revision status.
+- Final implementation separates revisions into a dedicated Revision Planner page and removes Revision from task statuses/tabs.
+- Dashboard revision metrics now come from revision schedules rather than task status.
 
-# 3. Product Goals
+This aligns better with clean information architecture: Tasks handle execution workflow, Revision page handles spaced repetition workflow.
 
-### Primary Goals
+## 3. Core Pages and Behavior
 
-The system should allow users to:
+### Dashboard (/dashboard)
 
-1. Organize subjects and topics
-2. Create study tasks
-3. Track study progress
-4. Plan revision schedules
-5. Generate AI-powered study help
+- Motivational quote with loading skeleton and fallback quote handling
+- KPI cards:
+  - Total Tasks
+  - Completed
+  - Pending
+  - Upcoming Revisions
+- Charts:
+  - Topic Distribution (pie)
+  - Task Status (bar)
+  - Weekly Activity (bar)
+- Progress bar for completion percentage
+- Upcoming revisions list sorted by nearest date
 
----
+### Subjects (/subjects)
 
-### Secondary Goals
+- Subject CRUD with validation
+- Topic CRUD under selected subject
+- Search across both subject and topic content
+- Topic fields:
+  - Name
+  - Difficulty (Easy/Medium/Hard)
+  - Status (Not Started/In Progress/Completed/Needs Revision)
+  - Notes
+- Edit mode pre-fills forms and hides currently editing card from list
 
-* Encourage disciplined study habits
-* Provide structured study planning
-* Demonstrate integration of AI APIs with React
+### Tasks (/tasks)
 
----
+- Task CRUD with validation
+- Subject-topic dependency in form:
+  - Topic select disabled until subject is selected
+  - Topic options limited to selected subject only
+- Status options:
+  - Pending
+  - Completed
+- Tabs:
+  - All
+  - Pending
+  - Completed
+  - Overdue
+- Filtering by priority, subject, deadline window
+- Sorting by due date, priority, subject
+- Completing task sets completion timestamp used by weekly analytics
 
-# 4. Target Users
+### Revision (/revision)
 
-### Primary Users
+- Subject-aware revision scheduling form
+- Topic options filtered by selected subject
+- Revision date scheduling
+- Mark revision complete
+- Delete revisions
+- Revision tips + spaced repetition interval guidance
 
-* College students
-* Competitive exam aspirants
-* Self-learners studying programming or other skills
+### AI Tools (/ai-tools)
 
-### User Pain Points
+- AI-powered content generation using OpenAI Chat Completions API
+- Four tools:
+  - Summary
+  - Questions (count configurable)
+  - Flashcards (count configurable)
+  - Study Plan
+- Output panel with:
+  - Copy to clipboard
+  - Download as text file
 
-Students often:
+## 4. Weekly Activity Chart Logic (Important)
 
-* lose track of topics studied
-* forget revision schedules
-* lack a clear study plan
-* struggle to summarize large topics
+Weekly Activity represents completed tasks for the last 7 days.
 
----
+Computation logic:
 
-# 5. Core Functional Requirements
+1. Build a 7-day timeline from today (oldest to newest)
+2. For each day, count only tasks where status is Completed
+3. Date source per task:
+   - Prefer completedAt
+   - Fallback to deadline if completedAt is absent
+4. Match by calendar day and aggregate counts
 
----
+Practical implication:
 
-# Feature 1 — Subject Management
+- If completed tasks have dates outside the last 7 days, bars show 0.
+- If a task is marked Completed from form/action, completion date tracking is used to reflect activity accurately.
 
-Users should be able to create subjects.
+## 5. Tech Stack
 
-Example subjects:
+- Frontend: React 19 + Vite
+- Styling: Tailwind CSS v4
+- Routing: react-router-dom
+- Forms and Validation: react-hook-form + yup + @hookform/resolvers
+- Charts: recharts
+- Date utilities: date-fns
+- Notifications: react-toastify
+- Icons: react-icons
+- HTTP client: axios
+- Motion package available: framer-motion
 
-* Mathematics
-* Computer Science
-* Data Structures
-* Algorithms
-* Physics
+## 6. State Management and Data Persistence
 
----
+### Global State
 
-### Subject Fields
+Context API via StudyContext stores:
 
-* Subject Name
-* Description
-* Color label
+- subjects
+- topics
+- tasks
+- revisions
 
----
+### Persistence
 
-# Feature 2 — Topic Management
+Data is persisted in localStorage with these keys:
 
-Each subject should contain multiple topics.
+- study_subjects
+- study_topics
+- study_tasks
+- study_revisions
 
-Example topics:
+Data auto-loads on app start and auto-saves on state changes.
 
-* Binary Trees
-* Graph Algorithms
-* Dynamic Programming
-
----
-
-### Topic Fields
-
-* Topic Name
-* Difficulty
-* Status
-* Notes
-
----
-
-### Topic Status
+## 7. Folder Structure
 
 ```text
-Not Started
-In Progress
-Completed
-Needs Revision
+src/
+  Assets/
+    Demo.png
+  components/
+    Navbar.jsx
+    ProgressChart.jsx
+    RevisionList.jsx
+    SearchBar.jsx
+    SubjectCard.jsx
+    TaskCard.jsx
+    Sidebar.jsx
+  context/
+    StudyContext.jsx
+  hooks/
+    useDebounce.js
+    useProgress.js
+    useSubjects.js
+    useTasks.js
+  pages/
+    AITools.jsx
+    Dashboard.jsx
+    DataManager.jsx
+    Revision.jsx
+    Subjects.jsx
+    Tasks.jsx
+  services/
+    aiService.js
+  utils/
+    helpers.js
+    storageManager.js
+  App.jsx
+  App.css
+  index.css
+  main.jsx
 ```
 
----
+Note: DataManager utilities exist in codebase but page route is currently not included in the app navigation.
 
-# Feature 3 — Study Tasks
+## 8. Environment Variables
 
-Users should be able to create study tasks.
+Create a .env file in the project root:
 
-Example:
-
-* "Solve 10 binary tree problems"
-* "Revise Graph algorithms"
-
----
-
-### Task Fields
-
-* Task Title
-* Subject
-* Topic
-* Deadline
-* Priority
-* Status
-
----
-
-### Priority Levels
-
-```text
-Low
-Medium
-High
+```env
+VITE_OPENAI_API_KEY=your_openai_api_key
+VITE_API_NINJAS_KEY=your_api_ninjas_key
 ```
 
----
+Used by:
 
-# Feature 4 — Task Tabs
+- OpenAI API (summaries/questions/flashcards/study plan)
+- API Ninjas quotes endpoint (motivational quote)
 
-Tasks should be categorized using tabs.
+If quote API fails, app falls back to a default quote.
 
-Tabs include:
+## 9. Installation and Run
 
-* All Tasks
-* Pending
-* Completed
-* Overdue
-* Revision
-
----
-
-# Feature 5 — Search
-
-Users should be able to search:
-
-* tasks
-* topics
-* notes
-
-Search results should update dynamically.
-
----
-
-# Feature 6 — Filtering
-
-Filters should include:
-
-* subject
-* priority
-* task status
-* deadline
-
----
-
-# Feature 7 — Sorting
-
-Sorting options:
-
-* due date
-* priority
-* subject name
-
----
-
-# Feature 8 — Study Progress Dashboard
-
-Dashboard should display:
-
-* total tasks
-* completed tasks
-* pending tasks
-* revision tasks
-
-Visualizations should include:
-
-* subject progress chart
-* completion percentage
-* weekly productivity graph
-
----
-
-# Feature 9 — Revision Planner
-
-The system should help students schedule revision sessions.
-
-Example
-
-```text
-Topic: Binary Trees
-Revision Date: 3 days after completion
+```bash
+npm install
+npm run dev
 ```
 
-Revision reminders should appear on the dashboard.
+Production build:
 
----
-
-# Feature 10 — AI Study Assistant
-
-Students should be able to generate:
-
-* topic summaries
-* practice questions
-* flashcards
-
-Example prompt
-
-```text
-Generate a summary for Binary Search Trees
+```bash
+npm run build
+npm run preview
 ```
 
----
+Lint:
 
-# 6. Non Functional Requirements
-
-The application should:
-
-* load quickly
-* support mobile devices
-* display loading indicators
-* handle API failures gracefully
-
----
-
-# 7. Pages Required
-
-Use **React Router DOM**.
-
----
-
-### Dashboard Page
-
-Displays study progress.
-
-Route
-
-```text
-/dashboard
+```bash
+npm run lint
 ```
 
----
+## 10. Key Architectural Notes
 
-### Subjects Page
+- Reusable hooks encapsulate business logic:
+  - useTasks
+  - useSubjects
+  - useProgress
+  - useDebounce
+- UI components are modular and page-agnostic where possible
+- Forms use schema-driven validation for consistency
+- Dashboard metrics are computed centrally in useProgress for single source of truth
 
-Displays subjects and topics.
+## 11. Data Models
 
-Route
-
-```text
-/subjects
-```
-
----
-
-### Tasks Page
-
-Displays study tasks.
-
-Route
-
-```text
-/tasks
-```
-
----
-
-### Revision Planner Page
-
-Displays revision schedule.
-
-Route
-
-```text
-/revision
-```
-
----
-
-### AI Assistant Page
-
-Displays AI study tools.
-
-Route
-
-```text
-/ai-tools
-```
-
----
-
-# 8. APIs
-
-Students must integrate an AI API.
-
----
-
-### AI Text Generation API
-
-Example:
-
-OpenAI API
-
-```text
-https://api.openai.com
-```
-
-Use for:
-
-* topic summaries
-* practice questions
-* flashcards
-
----
-
-### Quotes API (Optional)
-
-Example
-
-```text
-https://api.quotable.io/random
-```
-
-Used to display motivational quotes.
-
----
-
-# 9. Data Models
-
----
-
-### Subject Object
+### Subject
 
 ```json
 {
- id: string,
- name: string,
- description: string,
- color: string
+  "id": "string",
+  "name": "string",
+  "description": "string",
+  "color": "string"
 }
 ```
 
----
-
-### Topic Object
+### Topic
 
 ```json
 {
- id: string,
- subjectId: string,
- name: string,
- difficulty: string,
- status: string,
- notes: string
+  "id": "string",
+  "subjectId": "string",
+  "name": "string",
+  "difficulty": "Easy | Medium | Hard",
+  "status": "Not Started | In Progress | Completed | Needs Revision",
+  "notes": "string"
 }
 ```
 
----
-
-### Task Object
+### Task
 
 ```json
 {
- id: string,
- title: string,
- subject: string,
- topic: string,
- deadline: date,
- priority: string,
- status: string
+  "id": "string",
+  "title": "string",
+  "subject": "string",
+  "topic": "string",
+  "deadline": "date",
+  "priority": "Low | Medium | High",
+  "status": "Pending | Completed",
+  "completedAt": "date | null"
 }
 ```
 
----
+### Revision
 
-# 10. React Concepts Required
-
----
-
-# useState
-
-Used for:
-
-* form inputs
-* task states
-* filters
-* search query
-
-Example
-
-```javascript
-const [tasks, setTasks] = useState([])
+```json
+{
+  "id": "string",
+  "subject": "string",
+  "topic": "string",
+  "revisionDate": "date",
+  "completed": "boolean",
+  "completedAt": "date | undefined"
+}
 ```
 
----
+## 12. UX Highlights
 
-# useEffect
+- Sidebar navigation with collapsible behavior
+- Minimal neutral visual language with soft shadows and consistent spacing
+- Dynamic form behavior for dependent selects (subject -> topic)
+- Loading skeleton for quote section to improve perceived responsiveness
+- Chart cards with hover lift/shadow interactions
+- Toast feedback for CRUD and AI actions
 
-Used for:
+## 13. Limitations and Future Enhancements
 
-* loading tasks
-* updating progress analytics
-* making AI API calls
+- AI generation quality depends on API key/model access and quota
+- No backend sync (data is browser-local only)
+- DataManager page is present but not currently routed
+- Additional enhancements possible:
+  - Authentication and cloud sync
+  - Dark mode
+  - PDF export for AI outputs
+  - More advanced analytics (subject-wise trend lines)
 
-Example
+## 14. Final Note
 
-```javascript
-useEffect(()=>{
- fetchTasks()
-},[])
-```
+This project demonstrates a complete React architecture with practical state design, form validation, chart-based analytics, and real AI API integration for a production-like study planning workflow.
 
----
+## 15. License
 
-# Context API
+This project is created for educational purposes as part of coursework.
 
-Used for **global state management**.
+## 16. Developer
 
-Create
+Kartik Gupta  
+Roll No: 25BCS10035  
+Email: kartik.25bcs10035@sst.scaler.com
 
-```text
-StudyContext
-```
+## 17. Acknowledgments
 
-Global state should include:
-
-* subjects
-* topics
-* tasks
-* revision schedules
-
-Provider should wrap the entire application.
-
----
-
-# Custom Hooks
-
-Students should implement reusable hooks.
-
-Examples
-
-### useTasks()
-
-Handles CRUD operations for tasks.
-
----
-
-### useSubjects()
-
-Handles subjects and topics.
-
----
-
-### useProgress()
-
-Calculates completion percentage.
-
----
-
-### useDebounce()
-
-Optimizes search performance.
-
----
-
-# React Router DOM
-
-Routing structure
-
-```text
-/dashboard
-/subjects
-/tasks
-/revision
-/ai-tools
-```
-
----
-
-# 11. External npm Packages
-
-Students must use external libraries.
-
-Required packages
-
-```text
-react-router-dom
-axios
-react-icons
-react-toastify
-react-hook-form
-yup
-recharts
-react-calendar
-date-fns
-framer-motion
-```
-
----
-
-# 12. Suggested Folder Structure
-
-```text
-src
-
-components
-   SubjectCard
-   TaskCard
-   SearchBar
-   ProgressChart
-   RevisionList
-
-pages
-   Dashboard
-   Subjects
-   Tasks
-   Revision
-   AITools
-
-context
-   StudyContext
-
-hooks
-   useTasks
-   useSubjects
-   useProgress
-   useDebounce
-
-services
-   aiService.js
-
-utils
-   helpers.js
-```
-
----
-
-# 13. Evaluation Criteria
-
-| Criteria             | Weight |
-| -------------------- | ------ |
-| Feature completeness | 25%    |
-| React architecture   | 25%    |
-| API integration      | 20%    |
-| UI design            | 15%    |
-| Code quality         | 15%    |
-
----
-
-
+- Mrinal Bhattacharya - Course Instructor
+- OpenAI - AI text generation API
+- API Ninjas - Motivational quotes API
+- React Team - Excellent documentation
+- Vite - Blazing fast tooling
