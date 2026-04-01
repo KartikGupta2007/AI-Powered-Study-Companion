@@ -200,7 +200,6 @@ src/
   pages/
     AITools.jsx
     Dashboard.jsx
-    DataManager.jsx
     Revision.jsx
     Subjects.jsx
     Tasks.jsx
@@ -208,14 +207,11 @@ src/
     aiService.js
   utils/
     helpers.js
-    storageManager.js
   App.jsx
   App.css
   index.css
   main.jsx
 ```
-
-Note: DataManager utilities exist in codebase but page route is currently not included in the app navigation.
 
 ## 8. Environment Variables
 
@@ -331,7 +327,6 @@ npm run lint
 
 - AI generation quality depends on API key/model access and quota
 - No backend sync (data is browser-local only)
-- DataManager page is present but not currently routed
 - Additional enhancements possible:
   - Authentication and cloud sync
   - Dark mode
