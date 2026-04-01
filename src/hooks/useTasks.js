@@ -3,11 +3,8 @@ import { StudyContext } from '../context/StudyContext';
 
 const useTasks = () => {
 	const { tasks, addTask, updateTask, deleteTask } = useContext(StudyContext);
-
 	const createTask = useCallback(
-		(task) => {
-			addTask(task);
-		},
+		(task) => { addTask(task); },
 		[addTask]
 	);
 

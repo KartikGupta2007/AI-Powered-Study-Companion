@@ -1,4 +1,3 @@
-import React from 'react';
 import { FaTrash, FaEdit, FaCheckCircle } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 

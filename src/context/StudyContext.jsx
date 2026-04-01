@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState, useCallback, useEffect } from 'react';
 
 export const StudyContext = createContext();
@@ -103,6 +102,7 @@ export const StudyProvider = ({ children }) => {
 
   const deleteTopic = useCallback((id) => {
     setTopics((prev) => prev.filter((t) => t.id !== id));
+    setTasks((prev) => prev.filter((t) => t.topicId !== id));
   }, []);
 
   // Task actions

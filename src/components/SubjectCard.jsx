@@ -1,4 +1,3 @@
-import React from 'react';
 import { FaTrash, FaEdit } from 'react-icons/fa';
 
 const SubjectCard = ({ subject, onDelete, onEdit }) => {
